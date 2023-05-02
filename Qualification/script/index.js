@@ -53,10 +53,10 @@ directionalLight.castShadow = true;
 scene.add(directionalLight);
 
 // Spot Light
-let spotlight = new THREE.SpotLight(0XFFFFFF, 1, 1000, 30, 50, 2)
-spotlight.castShadow = true
-scene.add(spotlight)
-spotlight.position.set(0, 30, 0)
+let spotlight = new THREE.SpotLight(0XFFFFFF, 1, 1000, 30, 50, 2);
+spotlight.castShadow = true;
+scene.add(spotlight);
+spotlight.position.set(0, 30, 0);
 
 // Ambient light
 let ambientLight = new THREE.AmbientLight(0x404040);
@@ -204,10 +204,8 @@ function animate() {
 
         if (intersects.length > 0) {
             vehicle.scale.set(0.75, 0.75, 0.75);
-            console.log("woi")
         } else {
             vehicle.scale.set(0.5, 0.5, 0.5);
-            console.log("woi222")
         }
     }
 
