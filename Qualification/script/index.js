@@ -32,6 +32,7 @@ let camera1 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHe
 camera1.position.set(50, 50, 50);
 camera1.lookAt(scene.position);
 
+
 // Second camera
 let camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera2.position.set(0, 100, 0); 
@@ -49,19 +50,26 @@ document.body.appendChild(renderer.domElement);
 let directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
 directionalLight.position.set(0, 1, 0);
 directionalLight.castShadow = true;
-directionalLight.shadow.mapSize.width = 1024; 
-directionalLight.shadow.mapSize.height = 1024;
-directionalLight.shadow.camera.left = -50;
-directionalLight.shadow.camera.right = 50;
-directionalLight.shadow.camera.top = 50;
-directionalLight.shadow.camera.bottom = -50;
-directionalLight.shadow.camera.near = 0.5;
-directionalLight.shadow.camera.far = 500;
 scene.add(directionalLight);
+
+// Spot Light
+let spotlight = new THREE.SpotLight(0XFFFFFF, 1, 1000, 30, 50, 2)
+spotlight.castShadow = true
+scene.add(spotlight)
+spotlight.position.set(0, 30, 0)
 
 // Ambient light
 let ambientLight = new THREE.AmbientLight(0x404040);
 scene.add(ambientLight);
+
+let planeGeometry = new THREE.PlaneGeometry(10000, 10000);
+let planeMaterial = new THREE.MeshPhongMaterial({color: 0xaaaaaa, side: THREE.DoubleSide});
+let plane = new THREE.Mesh(planeGeometry, planeMaterial);
+plane.rotation.x = Math.PI / 2;
+plane.position.y = 0;
+plane.receiveShadow = true;
+scene.add(plane);
+
 
 // Grid of buildings
 let buildingMaterial1 = new THREE.MeshPhongMaterial({color: 0x555555});
@@ -164,33 +172,16 @@ roadV4.receiveShadow = true;
 roadV4.castShadow = true;
 roadV4.receiveShadow = true;
 
-let mouseMoveRaycaster = new THREE.Raycaster();
-let mouseMove = new THREE.Vector2();
-
-let colorStats = true;
+let raycaster = new THREE.Raycaster();
+let mouse = new THREE.Vector2();
 
 function onMouseMove( event ) {
-    mouseMove.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouseMove.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-    mouseMoveRaycaster.setFromCamera( mouseMove, activeCamera );
-    let intersects = mouseMoveRaycaster.intersectObjects( scene.children );
-
-    for ( let i = 0; i < intersects.length; i++ ) {
-        if (intersects[i].object === vehicle) {
-            if (colorStats) {
-                colorStats = false;
-                intersects[i].object.material.color.setHex(0xc5de83);
-            } else {
-                colorStats = true;
-                intersects[i].object.material.color.setHex(0xFF0000);
-            }
-        }
-    }
+    event.preventDefault();
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
 window.addEventListener( 'mousemove', onMouseMove, false );
-
 
 // Animation Function
 let clock = new THREE.Clock();
@@ -204,6 +195,20 @@ function animate() {
           position = -100;
         }
         vehicle.position.z = position; 
+    }
+
+    raycaster.setFromCamera( mouse, activeCamera );
+
+    if (vehicle) {
+        let intersects = raycaster.intersectObject( vehicle, true );
+
+        if (intersects.length > 0) {
+            vehicle.scale.set(0.75, 0.75, 0.75);
+            console.log("woi")
+        } else {
+            vehicle.scale.set(0.5, 0.5, 0.5);
+            console.log("woi222")
+        }
     }
 
     renderer.render(scene, activeCamera);
